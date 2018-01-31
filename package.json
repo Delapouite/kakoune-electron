@@ -1,0 +1,16 @@
+{
+  "name": "kakoune-electron",
+  "version": "1.0.0",
+  "description": "kakoune electron",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "repository": "https://github.com/Delapouite/kakoune-electron",
+  "devDependencies": {
+    "electron": "~1.7.11"
+  },
+  "dependencies": {
+    "ndjson": "^1.5.0"
+  }
+}
