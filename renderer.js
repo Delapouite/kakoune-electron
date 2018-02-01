@@ -1,6 +1,8 @@
 const { ipcRenderer } = require('electron')
 
-let elements = {}
+let elements = {
+  editor: document.getElementById('editor'),
+}
 let contexts = {}
 const ids = ['pad', 'status', 'mode', 'info']
 ids.map(id => {
@@ -89,20 +91,25 @@ function refreshContext(ctx) {
 
 function onResize() {
   const { clientHeight, clientWidth } = document.documentElement
+  const lines = Math.floor(clientHeight / font.height)
+  const columns = Math.floor(clientWidth / font.width)
+  const height = lines * font.height
+  const width = columns * font.width
+
+  elements.editor.style.height = `${height}px`
+  elements.editor.style.width = `${width}px`
+
   // leave room below for bar
-  elements.pad.height = clientHeight - font.height
-  elements.pad.width = clientWidth
+  elements.pad.height = height - font.height
+  elements.pad.width = width
 
   // TODO: correct balancing
-  elements.mode.width = clientWidth / 2
-  elements.status.width = clientWidth / 2
+  elements.mode.width = width / 2
+  elements.status.width = width / 2
 
   ids.forEach(id => refreshContext(contexts[id]))
 
-  ipcRenderer.send('resize', {
-    columns: Math.floor(clientWidth / font.width),
-    lines: Math.floor(clientHeight / font.height) - 1,
-  })
+  ipcRenderer.send('resize', { columns, lines })
 }
 onResize()
 window.addEventListener('resize', onResize)

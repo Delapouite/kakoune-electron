@@ -11,25 +11,38 @@
       height: 100%;
       width: 100%;
     }
+    body{
+      display: flex;
+    }
+    #editor {
+      margin: auto;
+    }
+    main {
+      position: relative;
+    }
+    aside {
+      display: flex;
+    }
     canvas {
       display: block;
     }
     #info {
+      bottom: 0;
       position: absolute;
       right: 0;
-      top: 0;
-    }
-    .bar {
-      display: flex;
     }
     </style>
   </head>
   <body>
-    <canvas id="pad" width="800" height="600"></canvas>
-    <canvas id="info" width="0" height="0"></canvas>
-    <div class="bar">
-      <canvas id="status" width="400" height="12"></canvas>
-      <canvas id="mode" width="400" height="12"></canvas>
+    <div id="editor">
+      <main>
+        <canvas id="pad" width="800" height="600"></canvas>
+        <canvas id="info" width="0" height="0"></canvas>
+      </main>
+      <aside>
+        <canvas id="status" width="400" height="12"></canvas>
+        <canvas id="mode" width="400" height="12"></canvas>
+      </aside>
     </div>
     <script>
       require('./input.js')
