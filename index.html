@@ -14,6 +14,11 @@
     canvas {
       display: block;
     }
+    #info {
+      position: absolute;
+      right: 0;
+      top: 0;
+    }
     .bar {
       display: flex;
     }
@@ -21,6 +26,7 @@
   </head>
   <body>
     <canvas id="pad" width="800" height="600"></canvas>
+    <canvas id="info" width="0" height="0"></canvas>
     <div class="bar">
       <canvas id="status" width="400" height="12"></canvas>
       <canvas id="mode" width="400" height="12"></canvas>

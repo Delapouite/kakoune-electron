@@ -2,7 +2,8 @@ const { ipcRenderer } = require('electron')
 
 let elements = {}
 let contexts = {}
-;['pad', 'status', 'mode'].map(id => {
+const ids = ['pad', 'status', 'mode', 'info']
+ids.map(id => {
   elements[id] = document.getElementById(id)
   contexts[id] = elements[id].getContext('2d', { alpha: false })
 })
@@ -37,6 +38,23 @@ function drawLine(ctx, line, y = 0) {
   }, 0)
 }
 
+// info does not accept markup yet
+function makeLine(contents, face) {
+  return [{ contents, face }]
+}
+
+function showInfo(title, contents, anchor, face, style) {
+  const lines = contents.trim().split('\n')
+  lines.unshift(title)
+
+  elements.info.height = lines.length * font.height
+  elements.info.width = Math.max(...lines.map(l => l.length)) * font.width
+
+  clear(contexts.info)
+  refreshContext(contexts.info)
+  lines.forEach((l, y) => drawLine(contexts.info, makeLine(l, face), y))
+}
+
 ipcRenderer.on('message', (event, { method, params }) => {
   switch (method) {
     case 'draw':
@@ -51,12 +69,19 @@ ipcRenderer.on('message', (event, { method, params }) => {
       clear(contexts.mode)
       drawLine(contexts.mode, params[1], 0)
       break
+    case 'info_show':
+      showInfo(...params)
+      break
+    case 'info_hide':
+      elements.info.height = 0
+      elements.info.width = 0
+      break
   }
 })
 
 // resize and init
 
-function refreshContext (ctx) {
+function refreshContext(ctx) {
   ctx.font = font.height + 'px monospace'
   ctx.textBaseline = 'top'
   font.width = ctx.measureText('m').width
@@ -67,13 +92,12 @@ function onResize() {
   // leave room below for bar
   elements.pad.height = clientHeight - font.height
   elements.pad.width = clientWidth
-  refreshContext(contexts.pad)
 
   // TODO: correct balancing
   elements.mode.width = clientWidth / 2
-  refreshContext(contexts.mode)
   elements.status.width = clientWidth / 2
-  refreshContext(contexts.status)
+
+  ids.forEach(id => refreshContext(contexts[id]))
 
   ipcRenderer.send('resize', {
     columns: Math.floor(clientWidth / font.width),
