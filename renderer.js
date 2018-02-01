@@ -51,12 +51,32 @@ function showInfo(title, contents, anchor, face, style) {
   const lines = contents.trim().split('\n')
   lines.unshift(title)
 
-  elements.info.height = lines.length * font.height
-  elements.info.width = Math.max(...lines.map(l => l.length)) * font.width
+  const widest = Math.max(title.length + 2, ...lines.map(l => l.length))
+
+  elements.info.height = (lines.length + 1) * font.height
+  elements.info.width = (widest + 4) * font.width
 
   clear(contexts.info)
   refreshContext(contexts.info)
-  lines.forEach((l, y) => drawLine(contexts.info, makeLine(l, face), y))
+
+  const dash = '─'
+  lines.forEach((l, y) => {
+    let contents
+    if (y === 0) {
+      if (!l) contents = `╭─${dash.repeat(widest)}─╮`
+      else {
+        const dashCount = widest - l.length - 2
+        const left = dash.repeat(Math.ceil(dashCount / 2))
+        const right = left.length ? dash.repeat(widest - l.length - left.length - 2) : ''
+        contents = `╭─${left}┤${l}├${right}─╮`
+      }
+    } else {
+      contents = `│ ${l.padEnd(widest, ' ')} │`
+    }
+    drawLine(contexts.info, makeLine(contents, face), y)
+  })
+  contents = `╰─${dash.repeat(widest)}─╯`
+  drawLine(contexts.info, makeLine(contents, face), lines.length)
 }
 
 function showMenu(items, anchor, selectedItemFace, menuFace) {
