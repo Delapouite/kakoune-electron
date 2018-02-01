@@ -4,7 +4,7 @@ let elements = {
   editor: document.getElementById('editor'),
 }
 let contexts = {}
-const ids = ['pad', 'status', 'mode', 'info']
+const ids = ['pad', 'status', 'mode', 'info', 'menu']
 ids.map(id => {
   elements[id] = document.getElementById(id)
   contexts[id] = elements[id].getContext('2d', { alpha: false })
@@ -13,6 +13,8 @@ ids.map(id => {
 const font = {
   height: 12,
 }
+
+const editor = { lines: 0, columns: 0 }
 
 let defaultFace = {}
 let paddingFace = {} // TODO
@@ -57,6 +59,22 @@ function showInfo(title, contents, anchor, face, style) {
   lines.forEach((l, y) => drawLine(contexts.info, makeLine(l, face), y))
 }
 
+function showMenu(items, anchor, selectedItemFace, menuFace) {
+  const widest = items.reduce(
+    (acc, i) => (i[0].contents.length > acc ? i[0].contents.length : acc),
+    0,
+  )
+  const columns = Math.max(1, Math.floor(editor.columns / widest))
+  const lines = Math.min(10, Math.floor(items.length / columns))
+  const slicedItems = items.slice(0, lines * columns)
+  elements.menu.height = lines * font.height
+
+  clear(contexts.menu)
+  refreshContext(contexts.menu)
+  slicedItems.forEach((l, y) => drawLine(contexts.menu, l, y))
+  drawLine(contexts.menu, items[0], 0)
+}
+
 ipcRenderer.on('message', (event, { method, params }) => {
   switch (method) {
     case 'draw':
@@ -78,6 +96,12 @@ ipcRenderer.on('message', (event, { method, params }) => {
       elements.info.height = 0
       elements.info.width = 0
       break
+    case 'menu_show':
+      showMenu(...params)
+      break
+    case 'menu_hide':
+      elements.menu.height = 0
+      break
   }
 })
 
@@ -91,10 +115,10 @@ function refreshContext(ctx) {
 
 function onResize() {
   const { clientHeight, clientWidth } = document.documentElement
-  const lines = Math.floor(clientHeight / font.height)
-  const columns = Math.floor(clientWidth / font.width)
-  const height = lines * font.height
-  const width = columns * font.width
+  editor.lines = Math.floor(clientHeight / font.height)
+  editor.columns = Math.floor(clientWidth / font.width)
+  const height = editor.lines * font.height
+  const width = editor.columns * font.width
 
   elements.editor.style.height = `${height}px`
   elements.editor.style.width = `${width}px`
@@ -107,9 +131,11 @@ function onResize() {
   elements.mode.width = width / 2
   elements.status.width = width / 2
 
+  elements.menu.width = width
+
   ids.forEach(id => refreshContext(contexts[id]))
 
-  ipcRenderer.send('resize', { columns, lines })
+  ipcRenderer.send('resize', { columns: editor.columns, lines: editor.lines })
 }
 onResize()
 window.addEventListener('resize', onResize)
