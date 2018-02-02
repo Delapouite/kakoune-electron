@@ -53,8 +53,8 @@ function showInfo(title, contents, anchor, face, style) {
 
   const widest = Math.max(title.length + 2, ...lines.map(l => l.length))
 
-  elements.info.height = (lines.length + 1) * font.height
-  setWidth('info', (widest + 4) * font.width)
+  setHeight('info', lines.length + 1)
+  setWidth('info', widest + 4)
 
   const dash = '─'
   lines.forEach((l, y) => {
@@ -85,10 +85,11 @@ function showMenu(items, anchor, selectedItemFace, menuFace) {
   )
   const columns = Math.max(1, Math.floor(editor.columns / widest))
   const lines = Math.min(10, Math.floor(items.length / columns))
-  const slicedItems = items.slice(0, lines * columns)
-  setHeight('menu', lines * font.height)
+  setHeight('menu', lines)
 
-  slicedItems.forEach((l, y) => drawLine(contexts.menu, l, y))
+  items
+    .slice(0, lines * columns)
+    .forEach((l, y) => drawLine(contexts.menu, l, y))
   drawLine(contexts.menu, items[0], 0)
 }
 
@@ -97,10 +98,10 @@ function drawStatus(status, mode) {
   const modeLen = mode.reduce((acc, a) => acc + a.contents.length, 0)
   const remaining = editor.columns - statusLen
   if (modeLen < remaining) {
-    setWidth('status', (editor.columns - modeLen) * font.width)
+    setWidth('status', editor.columns - modeLen)
     drawLine(contexts.status, status, 0)
 
-    setWidth('mode', modeLen * font.width)
+    setWidth('mode', modeLen)
     drawLine(contexts.mode, mode, 0)
   } else if (remaining > 2) {
     // TODO
@@ -136,14 +137,14 @@ ipcRenderer.on('message', (event, { method, params }) => {
 
 // resize and init
 
-function setWidth(name, width) {
-  elements[name].width = width
+function setWidth(name, columns) {
+  elements[name].width = columns * font.width
   refreshContext(contexts[name])
   clear(contexts[name])
 }
 
-function setHeight(name, height) {
-  elements[name].height = height
+function setHeight(name, lines) {
+  elements[name].height = lines * font.height
   refreshContext(contexts[name])
   clear(contexts[name])
 }
