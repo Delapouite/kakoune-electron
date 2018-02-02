@@ -54,10 +54,7 @@ function showInfo(title, contents, anchor, face, style) {
   const widest = Math.max(title.length + 2, ...lines.map(l => l.length))
 
   elements.info.height = (lines.length + 1) * font.height
-  elements.info.width = (widest + 4) * font.width
-
-  clear(contexts.info)
-  refreshContext(contexts.info)
+  setWidth('info', (widest + 4) * font.width)
 
   const dash = '─'
   lines.forEach((l, y) => {
@@ -67,7 +64,9 @@ function showInfo(title, contents, anchor, face, style) {
       else {
         const dashCount = widest - l.length - 2
         const left = dash.repeat(Math.ceil(dashCount / 2))
-        const right = left.length ? dash.repeat(widest - l.length - left.length - 2) : ''
+        const right = left.length
+          ? dash.repeat(widest - l.length - left.length - 2)
+          : ''
         contents = `╭─${left}┤${l}├${right}─╮`
       }
     } else {
@@ -87,12 +86,25 @@ function showMenu(items, anchor, selectedItemFace, menuFace) {
   const columns = Math.max(1, Math.floor(editor.columns / widest))
   const lines = Math.min(10, Math.floor(items.length / columns))
   const slicedItems = items.slice(0, lines * columns)
-  elements.menu.height = lines * font.height
+  setHeight('menu', lines * font.height)
 
-  clear(contexts.menu)
-  refreshContext(contexts.menu)
   slicedItems.forEach((l, y) => drawLine(contexts.menu, l, y))
   drawLine(contexts.menu, items[0], 0)
+}
+
+function drawStatus(status, mode) {
+  const statusLen = status.reduce((acc, a) => acc + a.contents.length, 0)
+  const modeLen = mode.reduce((acc, a) => acc + a.contents.length, 0)
+  const remaining = editor.columns - statusLen
+  if (modeLen < remaining) {
+    setWidth('status', (editor.columns - modeLen) * font.width)
+    drawLine(contexts.status, status, 0)
+
+    setWidth('mode', modeLen * font.width)
+    drawLine(contexts.mode, mode, 0)
+  } else if (remaining > 2) {
+    // TODO
+  }
 }
 
 ipcRenderer.on('message', (event, { method, params }) => {
@@ -104,10 +116,7 @@ ipcRenderer.on('message', (event, { method, params }) => {
       paddingFace = params[2]
       break
     case 'draw_status':
-      clear(contexts.status)
-      drawLine(contexts.status, params[0], 0)
-      clear(contexts.mode)
-      drawLine(contexts.mode, params[1], 0)
+      drawStatus(...params)
       break
     case 'info_show':
       showInfo(...params)
@@ -126,6 +135,18 @@ ipcRenderer.on('message', (event, { method, params }) => {
 })
 
 // resize and init
+
+function setWidth(name, width) {
+  elements[name].width = width
+  refreshContext(contexts[name])
+  clear(contexts[name])
+}
+
+function setHeight(name, height) {
+  elements[name].height = height
+  refreshContext(contexts[name])
+  clear(contexts[name])
+}
 
 function refreshContext(ctx) {
   ctx.font = font.height + 'px monospace'
