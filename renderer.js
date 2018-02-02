@@ -108,6 +108,11 @@ function drawStatus(status, mode) {
   }
 }
 
+function setTitle(mode) {
+  document.title = mode.reduce((acc, a) => acc + a.contents, '')
+  document.title += ' - kakoune electron'
+}
+
 ipcRenderer.on('message', (event, { method, params }) => {
   switch (method) {
     case 'draw':
@@ -118,6 +123,7 @@ ipcRenderer.on('message', (event, { method, params }) => {
       break
     case 'draw_status':
       drawStatus(...params)
+      setTitle(params[1])
       break
     case 'info_show':
       showInfo(...params)
