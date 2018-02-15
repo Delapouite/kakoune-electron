@@ -2,28 +2,26 @@ const path = require('path')
 const url = require('url')
 const { app, BrowserWindow, ipcMain } = require('electron')
 
-const client = require('./rpc')
+const rpc = require('./rpc')
 
-let win
+let win: any
 
 function createWindow() {
   win = new BrowserWindow()
 
   win.setMenu(null)
 
-  win.loadURL(
-    url.format({
-      pathname: path.join(__dirname, '../index.html'),
-      protocol: 'file:',
-      slashes: true,
-    }),
-  )
+  win.loadURL(url.format({
+      pathname: path.join(__dirname, "../index.html"),
+      protocol: "file:",
+      slashes: true
+    }))
 
-  client.on('message', message => win.webContents.send('message', message))
+  rpc.on('message', (message: { method: string, params: any[]}) => win.webContents.send('message', message))
 
-  ipcMain.on('keydown', (evt, key) => client.keys(key))
-  ipcMain.on('resize', (evt, { lines, columns }) =>
-    client.resize(lines, columns),
+  ipcMain.on('keydown', (evt: any, key: string) => rpc.keys(key))
+  ipcMain.on('resize', (evt: any, { lines, columns }: { lines: number, columns: number}) =>
+    rpc.resize(lines, columns),
   )
 
   win.webContents.openDevTools()

@@ -19,7 +19,7 @@ on what's being done by [neovim's frontends](https://github.com/neovim/neovim/wi
 
 ## Install
 
-`npm i`
+`npm i && npm run build`
 
 ## Usage
 

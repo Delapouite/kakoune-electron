@@ -1,6 +1,6 @@
 const { ipcRenderer } = require('electron')
 
-function getModifiers(evt) {
+function getModifiers(evt: any) {
   const modifiers = []
   if (evt.getModifierState('Control')) modifiers.push('Control')
   if (evt.getModifierState('Alt')) modifiers.push('Alt')
@@ -28,7 +28,7 @@ const specialKeys = {
   ' ': 'space'
 }
 
-document.addEventListener('keydown', evt => {
+document.addEventListener('keydown', (evt: any) => {
   console.log(evt.key, getModifiers(evt))
   let begin = ''
   let key

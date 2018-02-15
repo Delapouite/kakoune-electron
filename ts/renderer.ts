@@ -1,30 +1,60 @@
 const { ipcRenderer } = require('electron')
 
-let elements = {
-  editor: document.getElementById('editor'),
+type Color = string
+type Attribute = string
+type Face = {
+  fg: Color
+  bg: Color
+  attributes: Attribute[]
 }
-let contexts = {}
-const ids = ['pad', 'status', 'mode', 'info', 'menu']
-ids.map(id => {
-  elements[id] = document.getElementById(id)
-  contexts[id] = elements[id].getContext('2d', { alpha: false })
+type Atom = {
+  face: Face
+  contents: string
+}
+type Line = Atom[]
+type Coord = {
+  line: number
+  column: number
+}
+type MenuStyle = 'prompt' | 'inline'
+type InfoStyle = 'prompt' | 'inline' | 'inlineAbove' | 'inlineBellow' | 'menuDoc' | 'modal'
+
+const elements = new Map<string, HTMLElement>()
+const canvases = new Map<string, HTMLCanvasElement>()
+const contexts = new Map<string, CanvasRenderingContext2D>()
+
+elements.set('editor', document.getElementById('editor')!)
+
+const canvasIds = ['pad', 'status', 'mode', 'info', 'menu']
+canvasIds.map(id => {
+  canvases.set(id, <HTMLCanvasElement>document.getElementById(id)!)
+  contexts.set(id, canvases.get(id)!.getContext('2d', { alpha: false })!)
 })
 
 const font = {
   height: 12,
+  width: 0
 }
 
 const editor = { lines: 0, columns: 0 }
 
-let defaultFace = {}
-let paddingFace = {} // TODO
+let defaultFace: Face = {
+  fg: 'white',
+  bg: 'black',
+  attributes: []
+}
+let paddingFace: Face = {
+  fg: '#999',
+  bg: 'black',
+  attributes: []
+}
 
-function clear(ctx) {
-  ctx.fillStyle = defaultFace.bg || 'black'
+function clear(ctx: CanvasRenderingContext2D) {
+  ctx.fillStyle = defaultFace.bg
   ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height)
 }
 
-function drawAtom(ctx, { contents, face: { bg, fg } }, x, y) {
+function drawAtom(ctx: CanvasRenderingContext2D, { contents, face: { bg, fg } }: Atom, x: number, y: number) {
   const xPx = x * font.width
   const yPx = y * font.height
   // bg
@@ -35,7 +65,7 @@ function drawAtom(ctx, { contents, face: { bg, fg } }, x, y) {
   ctx.fillText(contents, xPx, yPx)
 }
 
-function drawLine(ctx, line, y = 0) {
+function drawLine(ctx: CanvasRenderingContext2D, line: Line, y = 0) {
   line.reduce((x, atom) => {
     drawAtom(ctx, atom, x, y)
     return x + atom.contents.length
@@ -43,14 +73,15 @@ function drawLine(ctx, line, y = 0) {
 }
 
 // info does not accept markup yet
-function makeLine(contents, face) {
+function makeLine(contents: string, face: Face) {
   return [{ contents, face }]
 }
 
-function showInfo(title, contents, anchor, face, style) {
+function showInfo(title: string, contents: string, anchor: Coord, face: Face, style: InfoStyle) {
   const lines = contents.trim().split('\n')
   lines.unshift(title)
 
+  const ctx = contexts.get('info')!
   const widest = Math.max(title.length + 2, ...lines.map(l => l.length))
 
   setHeight('info', lines.length + 1)
@@ -72,52 +103,53 @@ function showInfo(title, contents, anchor, face, style) {
     } else {
       contents = `│ ${l.padEnd(widest, ' ')} │`
     }
-    drawLine(contexts.info, makeLine(contents, face), y)
+    drawLine(ctx, makeLine(contents, face), y)
   })
   contents = `╰─${dash.repeat(widest)}─╯`
-  drawLine(contexts.info, makeLine(contents, face), lines.length)
+  drawLine(ctx, makeLine(contents, face), lines.length)
 }
 
-function showMenu(items, anchor, selectedItemFace, menuFace) {
+function showMenu(items: Line[], anchor: Coord, selectedItemFace: Face, menuFace: Face, style: MenuStyle) {
   const widest = items.reduce(
     (acc, i) => (i[0].contents.length > acc ? i[0].contents.length : acc),
     0,
   )
+  const ctx = contexts.get('menu')!
   const columns = Math.max(1, Math.floor(editor.columns / widest))
   const lines = Math.min(10, Math.floor(items.length / columns))
   setHeight('menu', lines)
 
   items
     .slice(0, lines * columns)
-    .forEach((l, y) => drawLine(contexts.menu, l, y))
-  drawLine(contexts.menu, items[0], 0)
+    .forEach((l, y) => drawLine(ctx, l, y))
+  drawLine(ctx, items[0], 0)
 }
 
-function drawStatus(status, mode) {
+function drawStatus(status: Line, mode: Line) {
   const statusLen = status.reduce((acc, a) => acc + a.contents.length, 0)
   const modeLen = mode.reduce((acc, a) => acc + a.contents.length, 0)
   const remaining = editor.columns - statusLen
   if (modeLen < remaining) {
     setWidth('status', editor.columns - modeLen)
-    drawLine(contexts.status, status, 0)
+    drawLine(contexts.get('status')!, status, 0)
 
     setWidth('mode', modeLen)
-    drawLine(contexts.mode, mode, 0)
+    drawLine(contexts.get('mode')!, mode, 0)
   } else if (remaining > 2) {
     // TODO
   }
 }
 
-function setTitle(mode) {
+function setTitle(mode: Line) {
   document.title = mode.reduce((acc, a) => acc + a.contents, '')
   document.title += ' - kakoune electron'
 }
 
-ipcRenderer.on('message', (event, { method, params }) => {
+ipcRenderer.on('message', (evt: any, { method, params }: { method: string, params: any[]}) => {
   switch (method) {
     case 'draw':
-      clear(contexts.pad)
-      params[0].forEach((l, y) => drawLine(contexts.pad, l, y))
+      clear(contexts.get('pad')!)
+      params[0].forEach((l: Line, y: number) => drawLine(contexts.get('pad')!, l, y))
       defaultFace = params[1]
       paddingFace = params[2]
       break
@@ -129,33 +161,33 @@ ipcRenderer.on('message', (event, { method, params }) => {
       showInfo(...params)
       break
     case 'info_hide':
-      elements.info.height = 0
-      elements.info.width = 0
+      canvases.get('info')!.height = 0
+      canvases.get('info')!.width = 0
       break
     case 'menu_show':
       showMenu(...params)
       break
     case 'menu_hide':
-      elements.menu.height = 0
+      canvases.get('menu')!.height = 0
       break
   }
 })
 
 // resize and init
 
-function setWidth(name, columns) {
-  elements[name].width = columns * font.width
-  refreshContext(contexts[name])
-  clear(contexts[name])
+function setWidth(name: string, columns: number) {
+  canvases.get(name)!.width = columns * font.width
+  refreshContext(contexts.get(name)!)
+  clear(contexts.get(name)!)
 }
 
-function setHeight(name, lines) {
-  elements[name].height = lines * font.height
-  refreshContext(contexts[name])
-  clear(contexts[name])
+function setHeight(name: string, lines: number) {
+  canvases.get(name)!.height = lines * font.height
+  refreshContext(contexts.get(name)!)
+  clear(contexts.get(name)!)
 }
 
-function refreshContext(ctx) {
+function refreshContext(ctx: CanvasRenderingContext2D) {
   ctx.font = font.height + 'px monospace'
   ctx.textBaseline = 'top'
   font.width = ctx.measureText('m').width
@@ -168,20 +200,20 @@ function onResize() {
   const height = editor.lines * font.height
   const width = editor.columns * font.width
 
-  elements.editor.style.height = `${height}px`
-  elements.editor.style.width = `${width}px`
+  elements.get('editor')!.style.height = `${height}px`
+  elements.get('editor')!.style.width = `${width}px`
 
   // leave room below for bar
-  elements.pad.height = height - font.height
-  elements.pad.width = width
+  canvases.get('pad')!.height = height - font.height
+  canvases.get('pad')!.width = width
 
   // TODO: correct balancing
-  elements.mode.width = width / 2
-  elements.status.width = width / 2
+  canvases.get('mode')!.width = width / 2
+  canvases.get('status')!.width = width / 2
 
-  elements.menu.width = width
+  canvases.get('menu')!.width = width
 
-  ids.forEach(id => refreshContext(contexts[id]))
+  canvasIds.forEach(id => refreshContext(contexts.get(id)!))
 
   ipcRenderer.send('resize', { columns: editor.columns, lines: editor.lines })
 }

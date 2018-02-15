@@ -4,7 +4,8 @@
   "description": "kakoune electron",
   "main": "js/main.js",
   "scripts": {
-    "start": "electron ."
+    "start": "electron .",
+    "build": "tsc"
   },
   "repository": "https://github.com/Delapouite/kakoune-electron",
   "devDependencies": {
