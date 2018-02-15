@@ -2,13 +2,14 @@
   "name": "kakoune-electron",
   "version": "1.0.0",
   "description": "kakoune electron",
-  "main": "main.js",
+  "main": "js/main.js",
   "scripts": {
     "start": "electron ."
   },
   "repository": "https://github.com/Delapouite/kakoune-electron",
   "devDependencies": {
-    "electron": "~1.7.11"
+    "electron": "~1.7.11",
+    "typescript": "^2.7.1"
   },
   "dependencies": {
     "ndjson": "^1.5.0"
