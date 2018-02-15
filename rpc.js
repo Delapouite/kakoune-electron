@@ -1,16 +1,25 @@
 const ndjson = require('ndjson')
 const { spawn } = require('child_process')
 const EventEmitter = require('events')
+const argv = process.argv.slice(2)
 
 const ee = new EventEmitter()
-// TODO: choose another existing session or create one
-const session = 'electron'
-const kak = spawn('kak', ['-ui', 'json', '-c', session])
+
+const kakArgs = ['-ui', 'json']
+if (argv[0] === '-c' && argv[1]) kakArgs.push(argv[0], argv[1])
+console.log({kakArgs})
+
+let kak = spawn('kak', kakArgs)
+
+kak.stderr.on('error', err => console.log(String(err)))
 
 kak.stdout.pipe(ndjson.parse()).on('data', json => {
   delete json.jsonrpc
   ee.emit('message', json)
 })
+
+// :q
+kak.stdout.on('end', () => process.exit())
 
 function send(method, params) {
   const json = {

@@ -19,9 +19,11 @@ on what's being done by [neovim's frontends](https://github.com/neovim/neovim/wi
 
 ## Install
 
-In a terminal start a kakoune session called `electron`: `kak -s electron`
+`npm i`
 
-`npm i && npm start`
+## Usage
+
+`npm start`
 
 ## Under the hood
 
