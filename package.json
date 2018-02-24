@@ -13,6 +13,7 @@
     "typescript": "^2.7.1"
   },
   "dependencies": {
-    "ndjson": "^1.5.0"
+    "ndjson": "^1.5.0",
+    "ramda": "^0.25.0"
   }
 }
