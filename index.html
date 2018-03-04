@@ -3,55 +3,12 @@
   <head>
     <meta charset="UTF-8">
     <title>Kakoune electron</title>
-    <style>
-    html, body {
-      background: black;
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      width: 100%;
-    }
-    body{
-      display: flex;
-    }
-    #editor {
-      margin: auto;
-    }
-    main {
-      position: relative;
-    }
-    aside {
-      display: flex;
-    }
-    canvas {
-      display: block;
-    }
-    #info {
-      bottom: 0;
-      position: absolute;
-      right: 0;
-    }
-    #menu {
-      bottom: 0;
-      position: absolute;
-    }
-    </style>
   </head>
   <body>
-    <div id="editor">
-      <main>
-        <canvas id="pad" width="800" height="600"></canvas>
-        <canvas id="info" width="0" height="0"></canvas>
-        <canvas id="menu" width="0" height="0"></canvas>
-      </main>
-      <aside>
-        <canvas id="status" width="400" height="12"></canvas>
-        <canvas id="mode" width="400" height="12"></canvas>
-      </aside>
-    </div>
+    <div id="editor"></div>
     <script>
       require('./js/input.js')
-      require('./js/renderer.js')
+      require('./js/renderers/canvas.js')
     </script>
   </body>
 </html>

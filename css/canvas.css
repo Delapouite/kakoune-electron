@@ -1,0 +1,32 @@
+html, body {
+  background: black;
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+}
+body{
+  display: flex;
+}
+#editor {
+  margin: auto;
+}
+main {
+  position: relative;
+}
+aside {
+  display: flex;
+}
+canvas {
+  display: block;
+}
+#info {
+  bottom: 0;
+  position: absolute;
+  right: 0;
+}
+#menu {
+  bottom: 0;
+  position: absolute;
+}
+

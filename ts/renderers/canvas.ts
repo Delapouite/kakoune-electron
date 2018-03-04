@@ -30,6 +30,34 @@ const getLen = (line: Line) => line.reduce((acc, a) => acc + a.contents.length, 
 
 // view
 
+function buildMount() {
+  function createCanvas(id, width, height) {
+    const canvas = document.createElement('canvas')
+    canvas.id = id
+    canvas.width = width
+    canvas.height = height
+    return canvas
+  }
+  const editor = document.getElementById('editor')
+  const main = document.createElement('main')
+  main.append(
+    createCanvas('pad', 800, 600),
+    createCanvas('info', 0, 0),
+    createCanvas('menu', 0, 0),
+  )
+  const aside = document.createElement('aside')
+  aside.append(
+    createCanvas('status', 400, 12),
+    createCanvas('mode', 400, 12),
+  )
+  editor.append(main, aside)
+  const link = document.createElement('link')
+  link.rel = 'stylesheet'
+  link.href = 'css/canvas.css'
+  document.head.append(link)
+}
+buildMount()
+
 const elements = new Map<string, HTMLElement>()
 const canvases = new Map<string, HTMLCanvasElement>()
 const contexts = new Map<string, CanvasRenderingContext2D>()
