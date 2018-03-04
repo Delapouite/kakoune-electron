@@ -1,0 +1,70 @@
+html, body {
+  background: black;
+  color: white;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 12px;
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+}
+
+#editor {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  margin: auto;
+  position: relative;
+}
+
+.DBuffer {
+  flex-grow: 1;
+}
+
+.Floating {
+  /* TODO: height of StatusMode */
+  bottom: 15px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+
+.Info {
+  align-self: flex-end;
+}
+
+.InfoTitle {
+  font-weight: bold;
+  text-align: center;
+}
+
+.Menu {
+  display: flex;
+  flex-wrap: wrap;
+  max-height: 2em;
+  /* TODO scrollbar */
+  overflow: hidden;
+}
+
+.Menu .DLine {
+  white-space: nowrap;
+  width: 25%;
+}
+
+.StatusMode {
+  display: flex;
+  flex-shrink: 0;
+}
+
+.Status {
+  flex-grow: 1;
+}
+
+.Mode {
+  flex-grow: 0;
+  flex-shrink: 0;
+}

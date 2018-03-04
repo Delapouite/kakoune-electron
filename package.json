@@ -13,7 +13,10 @@
     "typescript": "^2.7.1"
   },
   "dependencies": {
+    "@types/react": "^16.0.40",
     "ndjson": "^1.5.0",
-    "ramda": "^0.25.0"
+    "ramda": "^0.25.0",
+    "react": "^16.2.0",
+    "react-dom": "^16.2.0"
   }
 }
