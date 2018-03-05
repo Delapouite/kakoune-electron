@@ -3,7 +3,28 @@ const { ipcRenderer } = require('electron')
 const React = require('react')
 const ReactDOM = require('react-dom')
 
-// types
+// helpers
+
+function setTitle(mode: Line) {
+  document.title = mode.reduce((acc, a) => acc + a.contents, '')
+  document.title += ' - kakoune electron'
+}
+
+// TODO dynamic computation
+const cell = {
+  height: 14,
+  width: 7.19
+}
+
+function onResize() {
+  const { clientHeight, clientWidth } = document.documentElement
+  const lines = Math.floor(clientHeight / cell.height)
+  const columns = Math.floor(clientWidth / cell.width)
+  ipcRenderer.send('resize', { columns, lines })
+}
+
+onResize()
+window.addEventListener('resize', onResize)
 
 // components
 
@@ -88,6 +109,7 @@ class Editor extends React.Component<void, EditorState> {
 
   drawStatus(status: Line, mode: Line) {
     this.setState({ status, mode })
+    setTitle(mode)
   }
 
   showInfo(

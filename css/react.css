@@ -4,6 +4,7 @@ html, body {
   font-family: 'Courier New', Courier, monospace;
   font-size: 12px;
   margin: 0;
+  overflow: hidden;
   padding: 0;
   height: 100%;
   width: 100%;
