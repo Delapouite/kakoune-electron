@@ -67,6 +67,7 @@ html, body {
   display: inline-block;
   overflow: hidden;
   text-overflow: ellipsis;
+  vertical-align: middle;
   width: 100%;
 }
 

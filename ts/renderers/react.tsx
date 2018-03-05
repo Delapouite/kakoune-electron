@@ -270,11 +270,17 @@ class Menu extends React.Component<MenuProps> {
           background: menuFace.bg,
           color: menuFace.fg
         }
+    // TODO remove hardcoded dimensions
+    const cols = 4
+    const rows = 10
+    const maxItems = cols * rows
+    const selectedRow = Math.floor(selectedItem / cols)
+    const start = selectedItem < maxItems ? 0 : (selectedRow - rows + 1) * cols
     // TODO without mutations
     const choices = items.map((dl: Line, k: number) => {
       dl[0].face = k === selectedItem ? selectedItemFace : menuFace
       return dl
-    })
+    }).slice(start, start + 40)
     return (
       <div className="Menu" style={style}>
         {choices.map((dl: Line)=> <DLine line={dl} />)}
