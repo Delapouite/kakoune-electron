@@ -1,42 +1,32 @@
+/// <reference path="../types.d.ts" />
 const { ipcRenderer } = require('electron')
 const React = require('react')
 const ReactDOM = require('react-dom')
 
 // types
 
-type ColumnCount = number
-type LineCount = number
-
-type Color = string
-type Attribute = string
-type Face = {
-  fg: Color
-  bg: Color
-  attributes: Attribute[]
-}
-type Atom = {
-  face: Face
-  contents: string
-}
-type Line = Atom[]
-type Coord = {
-  line: LineCount
-  column: ColumnCount
-}
-type MenuStyle = 'prompt' | 'inline'
-type InfoStyle =
-  | 'prompt'
-  | 'inline'
-  | 'inlineAbove'
-  | 'inlineBellow'
-  | 'menuDoc'
-  | 'modal'
-
 // components
 
 interface EditorState {
   lines: Line[]
   defaultFace: Face
+  status: Line
+  mode: Line
+  info: {
+    title: string
+    contents: string
+    anchor: Coord
+    face: Face
+    style: InfoStyle
+  }
+  menu: {
+    items: Line[]
+    anchor: Coord
+    selectedItem: number
+    selectedItemFace: Face
+    menuFace: Face
+    style: MenuStyle
+  }
 }
 
 class Editor extends React.Component<void, EditorState> {

@@ -1,28 +1,6 @@
+/// <reference path="../types.d.ts" />
 const { ipcRenderer } = require('electron')
 const { splitEvery } = require('ramda')
-
-// types
-type ColumnCount = number
-type LineCount = number
-
-type Color = string
-type Attribute = string
-type Face = {
-  fg: Color
-  bg: Color
-  attributes: Attribute[]
-}
-type Atom = {
-  face: Face
-  contents: string
-}
-type Line = Atom[]
-type Coord = {
-  line: LineCount
-  column: ColumnCount
-}
-type MenuStyle = 'prompt' | 'inline'
-type InfoStyle = 'prompt' | 'inline' | 'inlineAbove' | 'inlineBellow' | 'menuDoc' | 'modal'
 
 // helpers
 
@@ -31,7 +9,7 @@ const getLen = (line: Line) => line.reduce((acc, a) => acc + a.contents.length, 
 // view
 
 function buildMount() {
-  function createCanvas(id, width, height) {
+  function createCanvas(id: string, width: number, height: number) {
     const canvas = document.createElement('canvas')
     canvas.id = id
     canvas.width = width
