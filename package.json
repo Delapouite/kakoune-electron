@@ -9,7 +9,7 @@
   },
   "repository": "https://github.com/Delapouite/kakoune-electron",
   "devDependencies": {
-    "electron": "~1.7.11",
+    "electron": "^1.8.2",
     "typescript": "^2.7.1"
   },
   "dependencies": {
