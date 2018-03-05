@@ -25,10 +25,16 @@ on what's being done by [neovim's frontends](https://github.com/neovim/neovim/wi
 
 `npm start`
 
+## Dev
+
+`npm dev`: DevTools will be automatically opened at startup.
+
 ## Under the hood
 
 At the moment the implementation is very naïve, but it works surprisingly nice enough.
 A `kak` child process is spawned by `node` and the communication is established through the
 [`JSON-RPC` api](https://github.com/mawww/kakoune/blob/master/doc/json_ui.asciidoc).
+
 On the rendering side, the drawing of the various elements is done with a bunch of `<canvas>` elements.
 
+An alternative renderer is made with `react`.

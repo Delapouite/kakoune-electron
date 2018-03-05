@@ -11,20 +11,26 @@ function createWindow() {
 
   win.setMenu(null)
 
-  win.loadURL(url.format({
-      pathname: path.join(__dirname, "../index.html"),
-      protocol: "file:",
+  win.loadURL(
+    url.format({
+      pathname: path.join(__dirname, '../index.html'),
+      protocol: 'file:',
       slashes: true
-    }))
-
-  rpc.on('message', (message: { method: string, params: any[]}) => win.webContents.send('message', message))
-
-  ipcMain.on('keydown', (evt: any, key: string) => rpc.keys(key))
-  ipcMain.on('resize', (evt: any, { lines, columns }: { lines: number, columns: number}) =>
-    rpc.resize(lines, columns),
+    })
   )
 
-  win.webContents.openDevTools()
+  rpc.on('message', (message: { method: string; params: any[] }) =>
+    win.webContents.send('message', message)
+  )
+
+  ipcMain.on('keydown', (evt: any, key: string) => rpc.keys(key))
+  ipcMain.on(
+    'resize',
+    (evt: any, { lines, columns }: { lines: number; columns: number }) =>
+      rpc.resize(lines, columns)
+  )
+
+  process.env.NODE_ENV === 'development' && win.webContents.openDevTools()
 
   win.on('closed', () => (win = null))
 }
