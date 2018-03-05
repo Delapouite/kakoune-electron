@@ -21,6 +21,10 @@ html, body {
   flex-grow: 1;
 }
 
+.DBuffer .DAtom {
+  white-space: pre;
+}
+
 .Floating {
   /* TODO: height of StatusMode */
   bottom: 15px;
@@ -30,7 +34,6 @@ html, body {
   left: 0;
   position: absolute;
   right: 0;
-  top: 0;
 }
 
 .Info {
