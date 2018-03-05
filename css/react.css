@@ -1,8 +1,13 @@
+:root {
+  --font-size: 12px;
+  --cell-height: 14px;
+}
+
 html, body {
   background: black;
   color: white;
   font-family: 'Courier New', Courier, monospace;
-  font-size: 12px;
+  font-size: var(--font-size);
   margin: 0;
   overflow: hidden;
   padding: 0;
@@ -27,8 +32,7 @@ html, body {
 }
 
 .Floating {
-  /* TODO: height of StatusMode */
-  bottom: 15px;
+  bottom: var(--cell-height);
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
@@ -49,7 +53,7 @@ html, body {
 .Menu {
   display: flex;
   flex-wrap: wrap;
-  max-height: 2em;
+  max-height: calc(var(--cell-height) * 10);
   /* TODO scrollbar */
   overflow: hidden;
 }
@@ -57,6 +61,13 @@ html, body {
 .Menu .DLine {
   white-space: nowrap;
   width: 25%;
+}
+
+.Menu .DAtom {
+  display: inline-block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
 }
 
 .StatusMode {

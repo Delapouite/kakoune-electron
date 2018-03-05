@@ -99,7 +99,7 @@ class Editor extends React.Component<void, EditorState> {
             this.showMenu(params[0], params[1], params[2], params[3], params[4])
             break
           case 'menu_select':
-            this.selectMenu(params[1])
+            this.selectMenu(params[0])
             break
           case 'menu_hide':
             this.hideMenu()
@@ -272,11 +272,7 @@ class Menu extends React.Component<MenuProps> {
         }
     // TODO without mutations
     const choices = items.map((dl: Line, k: number) => {
-      if (k === selectedItem) {
-        dl[0].face = selectedItemFace
-      } else {
-        dl[0].face = menuFace
-      }
+      dl[0].face = k === selectedItem ? selectedItemFace : menuFace
       return dl
     })
     return (
