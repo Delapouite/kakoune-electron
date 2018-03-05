@@ -28,32 +28,38 @@ window.addEventListener('resize', onResize)
 
 // components
 
+interface InfoState {
+  title: string
+  contents: string
+  anchor: Coord
+  face: Face
+  style: InfoStyle
+}
+
+interface MenuState {
+  items: Line[]
+  anchor: Coord
+  selectedItem: number
+  selectedItemFace: Face
+  menuFace: Face
+  style: MenuStyle
+}
+
 interface EditorState {
   lines: Line[]
   defaultFace: Face
+  paddingFace: Face
   status: Line
   mode: Line
-  info: {
-    title: string
-    contents: string
-    anchor: Coord
-    face: Face
-    style: InfoStyle
-  }
-  menu: {
-    items: Line[]
-    anchor: Coord
-    selectedItem: number
-    selectedItemFace: Face
-    menuFace: Face
-    style: MenuStyle
-  }
+  info: InfoState
+  menu: MenuState
 }
 
 class Editor extends React.Component<void, EditorState> {
   state = {
     lines: [],
     defaultFace: null,
+    paddingFace: null,
     status: null,
     mode: null,
     info: {
@@ -78,22 +84,22 @@ class Editor extends React.Component<void, EditorState> {
       (evt: any, { method, params }: { method: string; params: any[] }) => {
         switch (method) {
           case 'draw':
-            this.draw(...params)
+            this.draw(params[0], params[1], params[2])
             break
           case 'draw_status':
-            this.drawStatus(...params)
+            this.drawStatus(params[0], params[1])
             break
           case 'info_show':
-            this.showInfo(...params)
+            this.showInfo(params[0], params[1], params[2], params[3], params[4])
             break
           case 'info_hide':
             this.hideInfo()
             break
           case 'menu_show':
-            this.showMenu(...params)
+            this.showMenu(params[0], params[1], params[2], params[3], params[4])
             break
           case 'menu_select':
-            this.selectMenu(...params)
+            this.selectMenu(params[1])
             break
           case 'menu_hide':
             this.hideMenu()
@@ -103,8 +109,8 @@ class Editor extends React.Component<void, EditorState> {
     )
   }
 
-  draw(lines: Line[], defaultFace: Face) {
-    this.setState({ lines, defaultFace })
+  draw(lines: Line[], defaultFace: Face, paddingFace: Face) {
+    this.setState({ lines, defaultFace, paddingFace })
   }
 
   drawStatus(status: Line, mode: Line) {
@@ -174,14 +180,14 @@ interface DAtomProps {
 }
 class DAtom extends React.Component<DAtomProps> {
   render() {
-    const { atom } = this.props
+    const { atom: { contents, face } } = this.props
     const style = {
-      background: atom.face.bg,
-      color: atom.face.fg
+      background: face.bg === 'default' ? null : face.bg,
+      color: face.fg === 'default' ? null : face.fg
     }
     return (
       <span className="DAtom" style={style}>
-        {atom.contents}
+        {contents}
       </span>
     )
   }
@@ -190,18 +196,22 @@ class DAtom extends React.Component<DAtomProps> {
 interface DLineProps {
   line: Line
 }
-class DLine extends React.Component<DLine> {
+class DLine extends React.Component<DLineProps, {}> {
   render() {
     const { line } = this.props
     return (
       <div className="DLine">
-        {line.map((a, k) => <DAtom key={k} atom={a} />)}
+        {line.map((a: Atom, k: number) => <DAtom atom={a} />)}
       </div>
     )
   }
 }
 
-class DBuffer extends React.Component {
+interface DBufferProps {
+  lines: Line[]
+  defaultFace: Face
+}
+class DBuffer extends React.Component<DBufferProps> {
   render() {
     const { lines, defaultFace } = this.props
     const style = !defaultFace
@@ -212,13 +222,16 @@ class DBuffer extends React.Component {
         }
     return (
       <div className="DBuffer" style={style}>
-        {lines.map((l, k) => <DLine line={l} />)}
+        {lines.map((l: Line, k: number) => <DLine line={l} />)}
       </div>
     )
   }
 }
 
-class Info extends React.Component {
+interface InfoProps {
+  info: InfoState
+}
+class Info extends React.Component<InfoProps> {
   render() {
     const { info: { title, contents, face } } = this.props
     const style = !face
@@ -233,14 +246,19 @@ class Info extends React.Component {
       <div className="Info" style={style}>
         <div className="InfoTitle">{title}</div>
         <div>
-          {lines.map(l => <DLine line={[{ contents: l, face: face || {} }]} />)}
+          {lines.map((l: string) => (
+            <DLine line={[{ contents: l, face: face || {} }]} />
+          ))}
         </div>
       </div>
     )
   }
 }
 
-class Menu extends React.Component {
+interface MenuProps {
+  menu: MenuState
+}
+class Menu extends React.Component<MenuProps> {
   render() {
     const {
       menu: { items, selectedItem, selectedItemFace, menuFace }
@@ -253,17 +271,17 @@ class Menu extends React.Component {
           color: menuFace.fg
         }
     // TODO without mutations
-    const choices = items.map((dl, k) => {
+    const choices = items.map((dl: Line, k: number) => {
       if (k === selectedItem) {
         dl[0].face = selectedItemFace
       } else {
-        dl[0].face = {}
+        dl[0].face = menuFace
       }
       return dl
     })
     return (
       <div className="Menu" style={style}>
-        {choices.map(dl => <DLine line={dl} />)}
+        {choices.map((dl: Line)=> <DLine line={dl} />)}
       </div>
     )
   }

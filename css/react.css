@@ -22,7 +22,7 @@ html, body {
   flex-grow: 1;
 }
 
-.DBuffer .DAtom {
+.DBuffer .DAtom, .Status .DAtom {
   white-space: pre;
 }
 
